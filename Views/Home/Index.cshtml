@@ -1,0 +1,11 @@
+﻿@model FormHTML.Models.FormModel
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<form class="submit-input" asp-action="Index" asp-controller="Form">
+    <input type="text" class="txt-input" asp-for="Username" placeholder="User name" />
+    <input type="password" class="txt-input" asp-for="Password" placeholder="Password" />
+    <input type="submit" class="submit btn btn-primary" />
+</form>
