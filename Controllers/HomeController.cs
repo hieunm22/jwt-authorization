@@ -1,13 +1,13 @@
-﻿using System;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using FormHTML.Common;
 using FormHTML.Models;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Diagnostics;
 using System.Linq;
-using FormHTML.Common;
 
 namespace FormHTML.Controllers
 {
-  public class HomeController : Controller
+    public class HomeController : Controller
   {
     readonly FormModel USER = new FormModel { Username = "hieunm", Password = "1" };
 
@@ -21,10 +21,10 @@ namespace FormHTML.Controllers
         string username = jwtToken.Claims.FirstOrDefault(f => f.Type == "username")?.Value;
         string exp = jwtToken.Claims.FirstOrDefault(f => f.Type == "exp")?.Value;
         long lExp = long.Parse(exp);
-        if (new DateTime(1970, 1, 1).AddSeconds(lExp) < DateTime.Now) 
+        if (DateTime.UnixEpoch.AddSeconds(lExp) < DateTime.Now) 
         {
-          Unauthorized();
-          //return View("Login");
+          ClearAuthen();
+          return View("Login");
         }
         FormModel model = new FormModel() { Username = username };
         return View("Welcome", model);
@@ -46,17 +46,15 @@ namespace FormHTML.Controllers
     [HttpGet]
     public IActionResult Logout()
     {
-      DeleteCookie();
+      ClearAuthen();
       return Redirect("/");
     }
 
-    private void DeleteCookie()
+    private void ClearAuthen()
     {
-      var header = Request.Cookies.Keys;
-      var cookies = Request.Cookies.Select(s => s.Key);
-      foreach (var cookie in cookies)
+      if (Request.Cookies.ContainsKey(Constant.Authorization))
       {
-        Response.Cookies.Delete(cookie);
+        Response.Cookies.Delete(Constant.Authorization);
       }
     }
 

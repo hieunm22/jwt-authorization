@@ -13,3 +13,5 @@
 **/bin/
 
 # misc
+**/.vs/
+**/.vscode/

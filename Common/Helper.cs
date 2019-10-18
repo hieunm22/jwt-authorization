@@ -38,8 +38,7 @@ namespace FormHTML.Common
         private static long GetTime(this DateTime dt)
         {
             long retval = 0;
-            var st = new DateTime(1970, 1, 1);
-            TimeSpan t = (dt - st);
+            TimeSpan t = (dt - DateTime.UnixEpoch);
             retval = (long)(t.TotalMilliseconds + 0.5);
             return retval / 1000;
         }
@@ -57,11 +56,11 @@ namespace FormHTML.Common
             //  Finally create a Token
             var header = new JwtHeader(credentials);
 
-            /*{
+            /* template jwt
+            {
   "kid": "tdiR8hcLuAHDwKC2AgZRC+wsa/JMGh/YFt13Te7TGhM=",
   "alg": "RS256"
-}
-            {
+}, {
   "sub": "b8d25fa7-bbc9-47e5-9027-5e1b7b80ea10",
   "event_id": "25329fd4-db4a-4a0f-b160-b92a4def9aa2",
   "token_use": "access",
@@ -75,14 +74,9 @@ namespace FormHTML.Common
   "username": "SangLe"
 } */
 
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
-                .AddJsonFile($"appsettings.json", optional: false, reloadOnChange: true);
-            var config = builder.Build();
-
             //Some PayLoad that contain information about the customer
             long getTimeNow = GetTime(DateTime.Now);
-            long exp_duration = long.Parse(config["auth:exp_duration"]);
+            long exp_duration = long.Parse(AppSettings.Instance["auth:exp_duration"]);
 
             var payload = new JwtPayload
             {
