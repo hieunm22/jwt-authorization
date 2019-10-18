@@ -19,6 +19,13 @@ namespace FormHTML.Controllers
         var auth = Request.Cookies[Constant.Authorization];
         var jwtToken = Helper.DecodeJwtToken(auth);
         string username = jwtToken.Claims.FirstOrDefault(f => f.Type == "username")?.Value;
+        string exp = jwtToken.Claims.FirstOrDefault(f => f.Type == "exp")?.Value;
+        long lExp = long.Parse(exp);
+        if (new DateTime(1970, 1, 1).AddSeconds(lExp) < DateTime.Now) 
+        {
+          Unauthorized();
+          //return View("Login");
+        }
         FormModel model = new FormModel() { Username = username };
         return View("Welcome", model);
       }

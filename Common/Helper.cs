@@ -1,8 +1,10 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using FormHTML.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FormHTML.Common
@@ -37,7 +39,7 @@ namespace FormHTML.Common
         {
             long retval = 0;
             var st = new DateTime(1970, 1, 1);
-            TimeSpan t = (dt.ToUniversalTime() - st);
+            TimeSpan t = (dt - st);
             retval = (long)(t.TotalMilliseconds + 0.5);
             return retval / 1000;
         }
@@ -73,17 +75,25 @@ namespace FormHTML.Common
   "username": "SangLe"
 } */
 
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
+                .AddJsonFile($"appsettings.json", optional: false, reloadOnChange: true);
+            var config = builder.Build();
+
             //Some PayLoad that contain information about the customer
+            long getTimeNow = GetTime(DateTime.Now);
+            long exp_duration = long.Parse(config["auth:exp_duration"]);
+
             var payload = new JwtPayload
             {
-               { "sub ", 1 },   // user id
-               { "event_id ", Guid.NewGuid().ToString() },
+               { "sub", 1 },   // user id
+               { "event_id", Guid.NewGuid().ToString() },
                // { "iss ", username },
-               { "auth_time ", GetTime(DateTime.Now).ToString() },
-               { "iat ", GetTime(DateTime.Now).ToString() },
-               { "exp ", GetTime(DateTime.Now.AddMinutes(5d)).ToString()},
-               { "iss ", "hello" },
-               { "username ", loginModel.Username },
+               // { "auth_time", getTimeNow.ToString() },
+               { "iat", getTimeNow },
+               { "exp", getTimeNow + exp_duration},
+               { "iss", "hello" },
+               { "username", loginModel.Username },
                // { "scope", "http://dummy.com/"},
             };
 
